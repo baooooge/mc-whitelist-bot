@@ -43,5 +43,5 @@ npm install
 誰可以存取：選擇 所有人 (Anyone)。
 將取得的 Webhook 網址複製並填入 .env 的 GAS_WEBHOOK_URL。
 
-4. 啟動機器人
+4.啟動機器人
 node index.js
