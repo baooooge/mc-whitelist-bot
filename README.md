@@ -36,8 +36,10 @@ cd mc-whitelist-bot
 npm install
 
 ### 2.編輯 .env 填入實際參數
+```bash
 
 ### 3.Google Apps Script 部署
+```bash
 開啟目標 Google 試算表，點擊 擴充功能 > Apps Script。
 將專案中的 Code.gs 貼入編輯器並儲存。
 點擊右上角 部署 > 新增部署作業。
