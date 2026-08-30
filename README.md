@@ -11,7 +11,7 @@
 * **MCSManager 多節點 API 串接**：審核通過後自動發送原生指令寫入白名單，支援跨守護進程節點（Daemon）調度。
 * **跨平台智慧分流（Java / Bedrock）**：
   * **Java 版玩家**：自動同步加入生存服與模組服。
-  * **基岩版玩家**（`.` 開頭）：精準鎖定並加入支援 Floodgate 的生存服，自動阻斷無效模組服派發。
+  * **基岩版玩家**（`.` 開頭）：精準鎖定並加入支援 Floodgate 的生存服，自動阻斷無效模組服派發（沒裝轉換插件的）。
 * **Google 試算表雙向同步**：填表即時追加「待審核」列；審核後自動以 Discord ID 倒序鎖定最新紀錄，更新「已批准/已拒絕」、審核者及退件原因。
 * **Discord 成員狀態聯動**：通過審核自動發放身分組，並將伺服器暱稱標準化為 `名稱 (遊戲ID)`（內建字元長度防呆）。
 
@@ -38,7 +38,7 @@ npm install
 
 ### 2. 編輯 `.env` 填入實際參數
 
-複製 `.env.example` 並更名為 `.env`，填入 Discord、MCSManager 與 Google Webhook 設定。
+填入 Discord、MCSManager 與 Google Webhook 設定。
 
 ### 3. Google Apps Script 部署
 
