@@ -28,8 +28,11 @@
 確保系統已安裝 Node.js (v18.x 或 v20.x+)，在終端機中依序執行以下指令：
 
 git clone https://github.com/your-username/mc-whitelist-bot.git
+
 cd mc-whitelist-bot
+
 npm install
+
 node index.js
 
 啟動後，瀏覽器打開 http://localhost:3000 進入 Web 控制中心。
