@@ -117,8 +117,11 @@ Modular Discord Minecraft whitelist verification bot with a visual Web control d
 Ensure Node.js (v18.x or v20.x+) is installed, then run the following commands:
 
 git clone https://github.com/your-username/mc-whitelist-bot.git
+
 cd mc-whitelist-bot
+
 npm install
+
 node index.js
 
 Open http://localhost:3000 in your web browser to access the control panel.
