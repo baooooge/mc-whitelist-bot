@@ -87,6 +87,12 @@ node index.js
 * 雙端互通跨平台服：Java 核心 (Paper / Purpur / Fabric) 需安裝 Geyser 與 Floodgate。
 * Discord 身分組順序：在 Discord 伺服器身分組設定中，務必將機器人的身分組拖曳至「已驗證」身分組之上，以確保改暱稱與發身分組權限正常運行。
 
+### 致謝與協作聲明 (Acknowledgements & Credits)
+
+MCSManager 面板支援：本專案之伺服器白名單自動派發與多節點指令路由功能基於 MCSManager 開源 API 實現。
+
+開發與架構協作：本專案之核心系統架構、Express 後端路由、Discord.js 互動邏輯與 Web 控制面板由專案擁有者與 Google Gemini (AI Co-Pilot) 協同規劃與開發完成。
+
 ### 開源授權
 
 本專案採用 MIT License 授權開源。
@@ -175,6 +181,12 @@ Open http://localhost:3000, configure the following fields, and click Save Confi
 * Bedrock Server (BDS): Ensure white-list=true or allow-list=true in server.properties.
 * Crossplay Server: Java core (Paper / Purpur / Fabric) with Geyser and Floodgate installed.
 * Discord Role Hierarchy: Position the bot's role above the verified role in Discord settings to allow nickname and role modifications.
+
+### Acknowledgements & Credits
+
+MCSManager: The multi-node whitelist command routing and instance management features are powered by the MCSManager API.
+
+AI Co-Pilot: Core system architecture, backend routing, Discord bot logic, and Web GUI co-developed with Google Gemini.
 
 ### License
 
