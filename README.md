@@ -28,9 +28,7 @@
 
 ## 開始
 
-1. 取得專案原始碼
-
-
+1.取得專案原始碼
 git clone [https://github.com/baooooge/mc-whitelist-bot.git](https://github.com/baooooge/mc-whitelist-bot.git)
 cd mc-whitelist-bot
 npm install
@@ -44,3 +42,6 @@ npm install
 類型選擇 網頁應用程式：
 誰可以存取：選擇 所有人 (Anyone)。
 將取得的 Webhook 網址複製並填入 .env 的 GAS_WEBHOOK_URL。
+
+4. 啟動機器人
+node index.js
