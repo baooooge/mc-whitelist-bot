@@ -1,0 +1,32 @@
+{
+  "serverName": "Minecraft Community",
+  "serverMode": "CROSSPLAY",
+  "enableBedrockSupport": true,
+  "bedrockPrefix": ".",
+  "requireBedrockPrefix": true,
+  "bedrockCommandTemplate": "whitelist add {name}",
+  "javaCommandTemplate": "whitelist add {name}",
+  "embedColor": "#5865F2",
+  "instances": [
+    {
+      "name": "Main Server",
+      "instanceUuid": "",
+      "daemonId": "",
+      "target": "ALL"
+    }
+  ],
+  "questions": [
+    {
+      "id": "mcId",
+      "text": "Minecraft ID"
+    },
+    {
+      "id": "experience",
+      "text": "你的 Minecraft 遊玩經驗或年資："
+    },
+    {
+      "id": "rules",
+      "text": "是否已閱讀並同意遵守伺服器管理規範？"
+    }
+  ]
+}
