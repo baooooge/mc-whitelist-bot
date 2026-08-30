@@ -1,0 +1,1555 @@
+<!DOCTYPE html>
+<html lang="zh-TW" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minecraft Whitelist Control Center</title>
+  <link rel="icon" href="favicon.png" type="image/png">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Seric+TC:wght@400;700;900&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <script>
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+  </script>
+
+  <style>
+    :root {
+      color-scheme: dark light;
+      --bg-base: #09090b;
+      --bg-card: #141417;
+      --bg-card-hover: #1c1c21;
+      --bg-input: #0e0e11;
+      --text-main: #f8fafc;
+      --text-sub: #a1a1aa;
+      --text-muted: #71717a;
+      --border-color: #27272a;
+      --border-focus: #52525b;
+      --accent: #f8fafc;
+      --accent-invert: #09090b;
+      --navbar-bg: rgba(9, 9, 11, 0.85);
+      --danger: #ef4444;
+      --danger-hover: #dc2626;
+      --success: #22c55e;
+    }
+
+    :root[data-theme="light"] {
+      --bg-base: #f4f4f5;
+      --bg-card: #ffffff;
+      --bg-card-hover: #fafafa;
+      --bg-input: #ffffff;
+      --text-main: #0f172a;
+      --text-sub: #52525b;
+      --text-muted: #a1a1aa;
+      --border-color: #e4e4e7;
+      --border-focus: #a1a1aa;
+      --accent: #0f172a;
+      --accent-invert: #ffffff;
+      --navbar-bg: rgba(244, 244, 245, 0.9);
+      --danger: #ef4444;
+      --danger-hover: #dc2626;
+      --success: #16a34a;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Noto Serif TC', serif;
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      -webkit-font-smoothing: antialiased;
+      transition: background-color 0.25s ease, color 0.25s ease;
+    }
+
+    .navbar {
+      position: sticky;
+      top: 0;
+      width: 100%;
+      background: var(--navbar-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      z-index: 1000;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 40px;
+      border-bottom: 1px solid var(--border-color);
+      transition: border-color 0.25s ease, background-color 0.25s ease;
+    }
+
+    .nav-brand-wrap {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .nav-brand {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1.35rem;
+      font-weight: 900;
+      color: var(--text-main);
+      text-decoration: none;
+      letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .nav-brand span {
+      font-size: 0.85rem;
+      padding: 2px 8px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      color: var(--text-sub);
+      font-weight: 700;
+    }
+
+    .bot-status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 20px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--text-muted);
+    }
+
+    .status-dot.online {
+      background: var(--success);
+      box-shadow: 0 0 8px var(--success);
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .lang-select {
+      background: var(--bg-card);
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      outline: none;
+      font-family: inherit;
+    }
+
+    .theme-toggle-btn {
+      background: var(--bg-card);
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .theme-toggle-btn:hover {
+      border-color: var(--border-focus);
+    }
+
+    .btn-deploy-panel {
+      background: transparent;
+      color: var(--text-main);
+      border: 1px solid var(--border-color);
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-weight: 800;
+      font-size: 0.85rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+
+    .btn-deploy-panel:hover {
+      background: var(--bg-card);
+      border-color: var(--border-focus);
+    }
+
+    .btn-save {
+      background: var(--accent);
+      color: var(--accent-invert);
+      border: 1px solid var(--accent);
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-weight: 900;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      font-family: 'Montserrat', 'Noto Serif TC', sans-serif;
+    }
+
+    .btn-save:hover {
+      opacity: 0.9;
+      transform: translateY(-1px);
+    }
+
+    .container {
+      max-width: 1100px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 30px 20px 60px;
+      flex: 1;
+    }
+
+    .tabs-nav {
+      display: flex;
+      gap: 12px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 12px;
+      margin-bottom: 30px;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-sub);
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 800;
+      font-size: 0.95rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+
+    .tab-btn:hover {
+      color: var(--text-main);
+      background: var(--bg-card);
+    }
+
+    .tab-btn.active {
+      background: var(--bg-card);
+      border-color: var(--border-color);
+      color: var(--text-main);
+    }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+      transition: border-color 0.2s ease;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 14px;
+    }
+
+    .card-title {
+      font-size: 1.15rem;
+      font-weight: 900;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card-desc {
+      font-size: 0.85rem;
+      color: var(--text-sub);
+      margin-bottom: 20px;
+    }
+
+    .form-grid-3 {
+      display: grid;
+      grid-template-columns: 1.8fr 1.2fr 1fr;
+      gap: 20px;
+      align-items: flex-start;
+      margin-bottom: 20px;
+    }
+
+    .form-grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .form-grid-equal {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .form-label {
+      font-size: 0.88rem;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .form-text {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .form-input, .form-select-custom {
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      outline: none;
+      font-family: inherit;
+      transition: border-color 0.2s ease;
+      width: 100%;
+    }
+
+    .form-input:focus, .form-select-custom:focus {
+      border-color: var(--border-focus);
+    }
+
+    .input-password-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .input-password-wrap .form-input {
+      padding-right: 40px;
+    }
+
+    .btn-toggle-eye {
+      position: absolute;
+      right: 12px;
+      background: transparent;
+      border: none;
+      color: var(--text-sub);
+      cursor: pointer;
+      font-size: 0.95rem;
+    }
+
+    .btn-toggle-eye:hover {
+      color: var(--text-main);
+    }
+
+    .color-picker-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      padding: 6px 12px;
+      border-radius: 8px;
+      height: 43px;
+    }
+
+    .color-picker-input {
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      border: none;
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      cursor: pointer;
+      background: transparent;
+    }
+
+    .color-picker-input::-webkit-color-swatch {
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+    }
+
+    .color-hex-text {
+      font-family: monospace;
+      font-size: 0.88rem;
+      color: var(--text-main);
+      font-weight: 700;
+    }
+
+    .dynamic-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .dynamic-item {
+      display: grid;
+      gap: 12px;
+      align-items: center;
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      padding: 12px 14px;
+      border-radius: 8px;
+    }
+
+    .instance-grid {
+      grid-template-columns: 1.5fr 2fr 1.5fr 1.2fr 40px;
+    }
+
+    .question-grid {
+      grid-template-columns: 1.2fr 3fr 40px;
+    }
+
+    .btn-icon-danger {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-muted);
+      height: 38px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-icon-danger:hover:not(:disabled) {
+      background: rgba(239, 68, 68, 0.15);
+      color: var(--danger);
+      border-color: var(--danger);
+    }
+
+    .btn-icon-danger:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+
+    .btn-outline-action {
+      background: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+
+    .btn-outline-action:hover {
+      background: var(--bg-base);
+      border-color: var(--border-focus);
+    }
+
+    .guide-step {
+      border-left: 3px solid var(--text-main);
+      padding: 18px 20px;
+      background: var(--bg-card);
+      border-radius: 0 10px 10px 0;
+      margin-bottom: 20px;
+      border-top: 1px solid var(--border-color);
+      border-right: 1px solid var(--border-color);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .guide-step-title {
+      font-size: 1.05rem;
+      font-weight: 900;
+      color: var(--text-main);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .step-number {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.8rem;
+      background: var(--accent);
+      color: var(--accent-invert);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: 900;
+    }
+
+    .guide-step p {
+      font-size: 0.88rem;
+      color: var(--text-sub);
+      margin-bottom: 10px;
+    }
+
+    .guide-step ol, .guide-step ul {
+      padding-left: 20px;
+      font-size: 0.85rem;
+      color: var(--text-sub);
+    }
+
+    .guide-step li {
+      margin-bottom: 8px;
+      line-height: 1.6;
+    }
+
+    .guide-step code {
+      background: var(--bg-base);
+      color: var(--text-main);
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 1px solid var(--border-color);
+      font-family: monospace;
+      font-size: 0.82rem;
+    }
+
+    .toast-msg {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 14px 20px;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none;
+      z-index: 2000;
+    }
+
+    .toast-msg.show {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    .footer {
+      padding: 40px 20px;
+      text-align: center;
+      border-top: 1px solid var(--border-color);
+      background: var(--bg-card);
+      margin-top: auto;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-bottom: 12px;
+    }
+
+    .footer-links a {
+      color: var(--text-sub);
+      text-decoration: none;
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: color 0.2s ease;
+    }
+
+    .footer-links a:hover {
+      color: var(--text-main);
+    }
+
+    .footer-copyright {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    @media (max-width: 860px) {
+      .navbar { padding: 14px 20px; flex-wrap: wrap; gap: 10px; }
+      .form-grid-3, .form-grid-2, .form-grid-equal { grid-template-columns: 1fr; }
+      .instance-grid { grid-template-columns: 1fr; }
+      .question-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="nav-brand-wrap">
+      <a href="#" class="nav-brand">
+        WHITELIST BOT <span>CONTROL CENTER</span>
+      </a>
+      <div class="bot-status-badge">
+        <span class="status-dot" id="statusDot"></span>
+        <span id="botStatusText">連線中...</span>
+      </div>
+    </div>
+
+    <div class="nav-right">
+      <select id="langSelect" class="lang-select" onchange="changeLanguage(this.value)">
+        <option value="zh-TW">繁體中文</option>
+        <option value="zh-CN">简体中文</option>
+        <option value="en">English</option>
+        <option value="ja">日本語</option>
+      </select>
+
+      <button class="theme-toggle-btn" onclick="toggleTheme()" id="theme-toggle" aria-label="Toggle Theme">
+        <i class="fas fa-moon" id="themeIcon"></i>
+      </button>
+
+      <button class="btn-deploy-panel" onclick="deployPanelNow()">
+        <i class="fas fa-paper-plane text-primary"></i>
+        <span data-i18n="deployBtn">發布申請面板</span>
+      </button>
+
+      <button class="btn-save" onclick="saveConfig(true)">
+        <i class="fas fa-check"></i>
+        <span data-i18n="saveBtn">儲存設定</span>
+      </button>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="tabs-nav">
+      <button class="tab-btn active" onclick="switchTab('credentialsPane', this)">
+        <i class="fas fa-key"></i>
+        <span data-i18n="tabCredentials">API 金鑰與環境變數</span>
+      </button>
+      <button class="tab-btn" onclick="switchTab('settingsPane', this)">
+        <i class="fas fa-sliders-h"></i>
+        <span data-i18n="tabSettings">伺服器與節點設定</span>
+      </button>
+      <button class="tab-btn" onclick="switchTab('guidePane', this)">
+        <i class="fas fa-book-open"></i>
+        <span data-i18n="tabGuide">新手教學指南</span>
+      </button>
+    </div>
+
+    <div id="credentialsPane" class="tab-content active">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">
+            <i class="fab fa-discord"></i>
+            <span data-i18n="discordHeader">Discord 機器人金鑰與頻道 ID</span>
+          </span>
+        </div>
+
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label class="form-label" data-i18n="discordTokenLabel">Bot Token (機器人金鑰)</label>
+            <div class="input-password-wrap">
+              <input type="password" id="env_DISCORD_TOKEN" class="form-input" placeholder="MTE...">
+              <button type="button" class="btn-toggle-eye" onclick="toggleVisibility('env_DISCORD_TOKEN')"><i class="fas fa-eye"></i></button>
+            </div>
+            <span class="form-text" data-i18n="discordTokenHelp">Discord Developer Portal 中的 Bot Token</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" data-i18n="clientIdLabel">Application Client ID (應用程式 ID)</label>
+            <input type="text" id="env_CLIENT_ID" class="form-input" placeholder="134...">
+            <span class="form-text" data-i18n="clientIdHelp">Discord Application ID</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" data-i18n="guildIdLabel">Guild ID (伺服器 ID)</label>
+            <input type="text" id="env_GUILD_ID" class="form-input" placeholder="112...">
+            <span class="form-text" data-i18n="guildIdHelp">目標 Discord 伺服器之 ID</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" data-i18n="panelChannelLabel">申請面板頻道 ID</label>
+            <input type="text" id="env_APPLY_PANEL_CHANNEL_ID" class="form-input" placeholder="134...">
+            <span class="form-text" data-i18n="panelChannelHelp">發布「開始申請」按鈕的文字頻道 ID</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" data-i18n="reviewChannelLabel">管理員審核頻道 ID</label>
+            <input type="text" id="env_ADMIN_REVIEW_CHANNEL_ID" class="form-input" placeholder="134...">
+            <span class="form-text" data-i18n="reviewChannelHelp">管理員接收申請卡片與按鈕的頻道 ID</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" data-i18n="categoryIdLabel">申請頻道分類目錄 ID</label>
+            <input type="text" id="env_CATEGORY_ID" class="form-input" placeholder="134...">
+            <span class="form-text" data-i18n="categoryIdHelp">建立動態 1 對 1 申請頻道的類別目錄 ID</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" data-i18n="verifiedRoleLabel">通過驗證身分組 ID</label>
+            <input type="text" id="env_VERIFIED_ROLE_ID" class="form-input" placeholder="114...">
+            <span class="form-text" data-i18n="verifiedRoleHelp">審核通過後自動發放給玩家的身分組 ID</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" data-i18n="portLabel">本地 Web 面板 Port</label>
+            <input type="text" id="env_PORT" class="form-input" placeholder="3000">
+            <span class="form-text" data-i18n="portHelp">本控制台運行的端口（預設 3000）</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">
+            <i class="fas fa-plug"></i>
+            <span data-i18n="integrationsHeader">MCSManager 面板與 Google Apps Script</span>
+          </span>
+        </div>
+
+        <div class="form-grid-2">
+          <div class="form-group">
+            <label class="form-label" data-i18n="mcsmUrlLabel">MCSManager 面板網址 (URL)</label>
+            <input type="text" id="env_MCSM_URL" class="form-input" placeholder="http://192.168.1.100:23333">
+            <span class="form-text" data-i18n="mcsmUrlHelp">MCSManager 主面板存取位址（含 Port，結尾不帶斜線）</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" data-i18n="mcsmApiKeyLabel">MCSM API Key (面板金鑰)</label>
+            <div class="input-password-wrap">
+              <input type="password" id="env_MCSM_API_KEY" class="form-input" placeholder="6b9...">
+              <button type="button" class="btn-toggle-eye" onclick="toggleVisibility('env_MCSM_API_KEY')"><i class="fas fa-eye"></i></button>
+            </div>
+            <span class="form-text" data-i18n="mcsmApiKeyHelp">MCSManager 使用者管理中生成的管理員 API 金鑰</span>
+          </div>
+
+          <div class="form-group" style="grid-column: 1 / -1;">
+            <label class="form-label" data-i18n="gasWebhookLabel">Google Apps Script Webhook 網址</label>
+            <input type="text" id="env_GAS_WEBHOOK_URL" class="form-input" placeholder="https://script.google.com/macros/s/.../exec">
+            <span class="form-text" data-i18n="gasWebhookHelp">Google 試算表部署為網頁應用程式後取得的 Webhook URL</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="settingsPane" class="tab-content">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">
+            <i class="fas fa-server"></i>
+            <span data-i18n="generalHeader">基礎架構與運作模式</span>
+          </span>
+        </div>
+
+        <div class="form-grid-3">
+          <div class="form-group">
+            <label class="form-label" data-i18n="serverNameLabel">伺服器名稱</label>
+            <input type="text" id="serverName" class="form-input" placeholder="Minecraft Community">
+            <span class="form-text" data-i18n="serverNameHelp">顯示於 Discord 卡片與通知標題</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" data-i18n="serverModeLabel">伺服器架構模式</label>
+            <select id="serverMode" class="form-select-custom" onchange="handleModeChange(this.value)">
+              <option value="CROSSPLAY">雙端互通跨平台 (Geyser / Floodgate)</option>
+              <option value="BEDROCK_ONLY">純基岩版專屬服 (BDS / Nukkit / PowerNukkit)</option>
+              <option value="JAVA_ONLY">純 Java 版伺服器 (Vanilla / Paper / Fabric)</option>
+            </select>
+            <span class="form-text" data-i18n="serverModeHelp">決定白名單指令與玩家 ID 處理邏輯</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" data-i18n="embedColorLabel">卡片主題色</label>
+            <div class="color-picker-wrap">
+              <input type="color" id="embedColor" class="color-picker-input" oninput="updateHexText(this.value)">
+              <span id="colorHexText" class="color-hex-text">#5865F2</span>
+            </div>
+            <span class="form-text" data-i18n="embedColorHelp">Embed 卡片側邊顏色</span>
+          </div>
+        </div>
+
+        <div class="form-grid-equal" id="crossplaySettingsRow">
+          <div class="form-group" id="prefixFormGroup">
+            <label class="form-label" data-i18n="bedrockPrefixLabel">基岩版前綴字元</label>
+            <input type="text" id="bedrockPrefix" class="form-input" placeholder=".">
+            <span class="form-text" data-i18n="bedrockPrefixTip">Floodgate 預設為小數點「.」</span>
+          </div>
+          <div class="form-group" id="bedrockCmdGroup">
+            <label class="form-label" data-i18n="bedrockCmdLabel">基岩版指令樣板</label>
+            <input type="text" id="bedrockCommandTemplate" class="form-input" placeholder="whitelist add {name}">
+            <span class="form-text" data-i18n="cmdHelp">{name} 將被自動替換為 ID</span>
+          </div>
+          <div class="form-group" id="javaCmdGroup">
+            <label class="form-label" data-i18n="javaCmdLabel">Java 版指令樣板</label>
+            <input type="text" id="javaCommandTemplate" class="form-input" placeholder="whitelist add {name}">
+            <span class="form-text" data-i18n="cmdHelp">{name} 將被自動替換為 ID</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">
+            <i class="fas fa-network-wired"></i>
+            <span data-i18n="instancesHeader">MCSManager 伺服器與節點實例清單</span>
+          </span>
+          <button class="btn-outline-action" onclick="addInstanceRow()">
+            <i class="fas fa-plus"></i>
+            <span data-i18n="addInstanceBtn">新增伺服器節點</span>
+          </button>
+        </div>
+        <p class="card-desc" data-i18n="instanceDesc">可綁定任意多個 MCSManager 伺服器與遠端節點，審核通過時將根據分流目標自動精準發送指令。</p>
+        <div id="instanceContainer" class="dynamic-list"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">
+            <i class="fas fa-list-check"></i>
+            <span data-i18n="questionsHeader">自訂問卷題目</span>
+          </span>
+          <button class="btn-outline-action" onclick="addQuestionRow()">
+            <i class="fas fa-plus"></i>
+            <span data-i18n="addQuestionBtn">新增題目</span>
+          </button>
+        </div>
+        <p class="card-desc" data-i18n="questionDesc">第 1 題固定由系統依據玩家版本動態引導；下方題目為第 2 題開始之問卷內容，可自由增減修改。</p>
+        <div id="questionContainer" class="dynamic-list"></div>
+      </div>
+    </div>
+
+    <div id="guidePane" class="tab-content">
+      <div class="guide-step">
+        <div class="guide-step-title">
+          <span class="step-number">STEP 1</span>
+          <span data-i18n="step1Title">前置環境需求準備</span>
+        </div>
+        <p data-i18n="step1Desc">部署本系統前請確認已具備以下前置項目：</p>
+        <ol>
+          <li data-i18n="step1Point1">Node.js：版本需求 v18.x 或 v20.x+。</li>
+          <li data-i18n="step1Point2">MCSManager 面板：v9 / v10，並已在「使用者管理」生成 API Key。</li>
+          <li>
+            <strong data-i18n="step1Point3Title">Minecraft 伺服器核心支援</strong>：
+            <ul>
+              <li data-i18n="step1Point3Sub1">純基岩版服 (BDS)：原裝 Bedrock Dedicated Server、Nukkit 或 PocketMine。</li>
+              <li data-i18n="step1Point3Sub2">純 Java 服：Vanilla、Paper、Purpur、Fabric 或 Forge。</li>
+              <li data-i18n="step1Point3Sub3">雙端互通服：Paper / Fabric 搭配安裝 Geyser 與 Floodgate。</li>
+            </ul>
+          </li>
+        </ol>
+      </div>
+
+      <div class="guide-step">
+        <div class="guide-step-title">
+          <span class="step-number">STEP 2</span>
+          <span data-i18n="step2Title">Discord 機器人建立與特權意圖</span>
+        </div>
+        <p data-i18n="step2Desc">前往 Discord Developer Portal 建立 Application 並進入 Bot 標籤頁：</p>
+        <ol>
+          <li data-i18n="step2Point1">開啟特權意圖 (Privileged Gateway Intents)：請將 PRESENCE INTENT、SERVER MEMBERS INTENT、MESSAGE CONTENT INTENT 全部勾選開啟。</li>
+          <li data-i18n="step2Point2">邀請機器人：OAuth2 範圍勾選 bot，權限給予 Administrator 或管理頻道/身分組/暱稱等權限。</li>
+          <li data-i18n="step2Point3">身分組順序：在 Discord 伺服器身分組清單中，務必將機器人的身分組拖曳至「已驗證」身分組之上。</li>
+        </ol>
+      </div>
+
+      <div class="guide-step">
+        <div class="guide-step-title">
+          <span class="step-number">STEP 3</span>
+          <span data-i18n="step3Title">Google Apps Script (GAS) 試算表部署</span>
+        </div>
+        <p data-i18n="step3Desc">將玩家作答與審核狀態即時非同步同步至 Google 試算表：</p>
+        <ol>
+          <li data-i18n="step3Point1">建立一份新的 Google 試算表，點選頂部選單 擴充功能 > Apps Script。</li>
+          <li data-i18n="step3Point2">將專案中的 Code.gs 原始碼貼入編輯器並儲存。</li>
+          <li data-i18n="step3Point3">點擊右上角 部署 > 新增部署作業。</li>
+          <li data-i18n="step3Point4">類型選擇 網頁應用程式 (Web App)，存取權限設為 所有人 (Anyone)。</li>
+          <li data-i18n="step3Point5">複製產生的網頁應用程式網址，填入「API 金鑰與環境變數」中的 GAS_WEBHOOK_URL 欄位。</li>
+        </ol>
+      </div>
+
+      <div class="guide-step">
+        <div class="guide-step-title">
+          <span class="step-number">STEP 4</span>
+          <span data-i18n="step4Title">MCSManager 面板 API 串接</span>
+        </div>
+        <p data-i18n="step4Desc">讓機器人能遠端發送指令寫入伺服器白名單：</p>
+        <ol>
+          <li data-i18n="step4Point1">取得 API Key：登入 MCSManager 面板，前往 使用者管理 複製管理員 API Key。</li>
+          <li data-i18n="step4Point2">取得實例 UUID 與 Daemon ID：進入伺服器實例終端介面，在網址列或設定中找到 uuid 與 daemonId。</li>
+          <li data-i18n="step4Point3">填入設定後台：將面板網址與 API Key 寫入「API 金鑰與環境變數」，並在「伺服器與節點設定」中直接輸入實例 UUID 與節點 ID。</li>
+        </ol>
+      </div>
+
+      <div class="guide-step">
+        <div class="guide-step-title">
+          <span class="step-number">STEP 5</span>
+          <span data-i18n="step5Title">跨平台與版本分流運作機制</span>
+        </div>
+        <p data-i18n="step5Desc">系統如何處理 Java 與基岩版玩家：</p>
+        <ul>
+          <li data-i18n="step5Point1">雙端互通模式：申請時機器人自動提供 Java 與基岩版選擇按鈕，玩家輸入原始 ID 即可，系統後端自動處理前綴補綴與指令派發。</li>
+          <li data-i18n="step5Point2">多節點精準路由：審核通過時，Java 玩家僅寫入設定為 ALL 與 JAVA_ONLY 的實例；基岩版玩家僅寫入 ALL 與 BEDROCK_ONLY 的實例。</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div id="toastMsg" class="toast-msg">
+    <i class="fas fa-check-circle" id="toastIcon" style="color: var(--success);"></i>
+    <span id="toastText">設定已儲存成功！</span>
+  </div>
+
+  <footer class="footer">
+    <div class="footer-links">
+      <a href="https://github.com/baooooge/mc-whitelist-bot" target="_blank" data-i18n="footerGithub">GitHub Project</a>
+    </div>
+    <div class="footer-copyright">MIT License - Open Source Community</div>
+  </footer>
+
+  <script>
+    const i18n = {
+      "zh-TW": {
+        saveBtn: "儲存設定",
+        deployBtn: "發布申請面板",
+        tabCredentials: "API 金鑰與環境變數",
+        tabSettings: "伺服器與節點設定",
+        tabGuide: "新手教學指南",
+        discordHeader: "Discord 機器人金鑰與頻道 ID",
+        discordTokenLabel: "Bot Token (機器人金鑰)",
+        discordTokenHelp: "Discord Developer Portal 中的 Bot Token",
+        clientIdLabel: "Application Client ID (應用程式 ID)",
+        clientIdHelp: "Discord Application ID",
+        guildIdLabel: "Guild ID (伺服器 ID)",
+        guildIdHelp: "目標 Discord 伺服器之 ID",
+        panelChannelLabel: "申請面板頻道 ID",
+        panelChannelHelp: "發布「開始申請」按鈕的文字頻道 ID",
+        reviewChannelLabel: "管理員審核頻道 ID",
+        reviewChannelHelp: "管理員接收申請卡片與按鈕的頻道 ID",
+        categoryIdLabel: "申請頻道分類目錄 ID",
+        categoryIdHelp: "建立動態 1 對 1 申請頻道的類別目錄 ID",
+        verifiedRoleLabel: "通過驗證身分組 ID",
+        verifiedRoleHelp: "審核通過後自動發放給玩家的身分組 ID",
+        portLabel: "本地 Web 面板 Port",
+        portHelp: "本控制台運行的端口（預設 3000）",
+        integrationsHeader: "MCSManager 面板與 Google Apps Script",
+        mcsmUrlLabel: "MCSManager 面板網址 (URL)",
+        mcsmUrlHelp: "MCSManager 主面板存取位址（含 Port，結尾不帶斜線）",
+        mcsmApiKeyLabel: "MCSM API Key (面板金鑰)",
+        mcsmApiKeyHelp: "MCSManager 使用者管理中生成的管理員 API 金鑰",
+        gasWebhookLabel: "Google Apps Script Webhook 網址",
+        gasWebhookHelp: "Google 試算表部署為網頁應用程式後取得的 Webhook URL",
+        generalHeader: "基礎架構與運作模式",
+        serverNameLabel: "伺服器名稱",
+        serverNameHelp: "顯示於 Discord 卡片與通知標題",
+        serverModeLabel: "伺服器架構模式",
+        serverModeHelp: "決定白名單指令與玩家 ID 處理邏輯",
+        embedColorLabel: "卡片主題色",
+        embedColorHelp: "Embed 卡片側邊顏色",
+        bedrockPrefixLabel: "基岩版前綴字元",
+        bedrockPrefixTip: "Floodgate 預設為小數點「.」",
+        bedrockCmdLabel: "基岩版指令樣板",
+        javaCmdLabel: "Java 版指令樣板",
+        cmdHelp: "{name} 將被自動替換為 ID",
+        instancesHeader: "MCSManager 伺服器與節點實例清單",
+        addInstanceBtn: "新增伺服器節點",
+        instanceDesc: "可綁定任意多個 MCSManager 伺服器與遠端節點，審核通過時將根據分流目標自動精準發送指令。",
+        questionsHeader: "自訂問卷題目",
+        addQuestionBtn: "新增題目",
+        questionDesc: "第 1 題固定由系統依據玩家版本動態引導；下方題目為第 2 題開始之問卷內容，可自由增減修改。",
+        toastSaved: "所有設定已成功儲存並同步至 Discord！",
+        toastFailed: "儲存失敗，請檢查後台連線。",
+        step1Title: "前置環境需求準備",
+        step1Desc: "部署本系統前請確認已具備以下前置項目：",
+        step1Point1: "Node.js：版本需求 v18.x 或 v20.x+。",
+        step1Point2: "MCSManager 面板：v9 / v10，並已在「使用者管理」生成 API Key。",
+        step1Point3Title: "Minecraft 伺服器核心支援",
+        step1Point3Sub1: "純基岩版服 (BDS)：原裝 Bedrock Dedicated Server、Nukkit 或 PocketMine。",
+        step1Point3Sub2: "純 Java 服：Vanilla、Paper、Purpur、Fabric 或 Forge。",
+        step1Point3Sub3: "雙端互通服：Paper / Fabric 搭配安裝 Geyser 與 Floodgate。",
+        step2Title: "Discord 機器人建立與特權意圖",
+        step2Desc: "前往 Discord Developer Portal 建立 Application 並進入 Bot 標籤頁：",
+        step2Point1: "開啟特權意圖 (Privileged Gateway Intents)：請將 PRESENCE INTENT、SERVER MEMBERS INTENT、MESSAGE CONTENT INTENT 全部勾選開啟。",
+        step2Point2: "邀請機器人：OAuth2 範圍勾選 bot，權限給予 Administrator 或管理頻道/身分組/暱稱等權限。",
+        step2Point3: "身分組順序：在 Discord 伺服器身分組清單中，務必將機器人的身分組拖曳至「已驗證」身分組之上。",
+        step3Title: "Google Apps Script (GAS) 試算表部署",
+        step3Desc: "將玩家作答與審核狀態即時非同步同步至 Google 試算表：",
+        step3Point1: "建立一份新的 Google 試算表，點選頂部選單 擴充功能 > Apps Script。",
+        step3Point2: "將專案中的 Code.gs 原始碼貼入編輯器並儲存。",
+        step3Point3: "點擊右上角 部署 > 新增部署作業。",
+        step3Point4: "類型選擇 網頁應用程式 (Web App)，存取權限設為 所有人 (Anyone)。",
+        step3Point5: "複製產生的網頁應用程式網址，填入「API 金鑰與環境變數」中的 GAS_WEBHOOK_URL 欄位。",
+        step4Title: "MCSManager 面板 API 串接",
+        step4Desc: "讓機器人能遠端發送指令寫入伺服器白名單：",
+        step4Point1: "取得 API Key：登入 MCSManager 面板，前往 使用者管理 複製管理員 API Key。",
+        step4Point2: "取得實例 UUID 與 Daemon ID：進入伺服器實例終端介面，在網址列或設定中找到 uuid 與 daemonId。",
+        step4Point3: "填入設定後台：將面板網址與 API Key 寫入「API 金鑰與環境變數」，並在「伺服器與節點設定」中直接輸入實例 UUID 與節點 ID。",
+        step5Title: "跨平台與版本分流運作機制",
+        step5Desc: "系統如何處理 Java 與基岩版玩家：",
+        step5Point1: "雙端互通模式：申請時機器人自動提供 Java 與基岩版選擇按鈕，玩家輸入原始 ID 即可，系統後端自動處理前綴補綴與指令派發。",
+        step5Point2: "多節點精準路由：審核通過時，Java 玩家僅寫入設定為 ALL 與 JAVA_ONLY 的實例；基岩版玩家僅寫入 ALL 與 BEDROCK_ONLY 的實例。",
+        footerGithub: "GitHub 專案"
+      },
+      "zh-CN": {
+        saveBtn: "保存设置",
+        deployBtn: "发布申请面板",
+        tabCredentials: "API 密钥与环境变量",
+        tabSettings: "服务器与节点设置",
+        tabGuide: "新手教学指南",
+        discordHeader: "Discord 机器人密钥与频道 ID",
+        discordTokenLabel: "Bot Token (机器人密钥)",
+        discordTokenHelp: "Discord Developer Portal 中的 Bot Token",
+        clientIdLabel: "Application Client ID (应用程序 ID)",
+        clientIdHelp: "Discord Application ID",
+        guildIdLabel: "Guild ID (服务器 ID)",
+        guildIdHelp: "目标 Discord 服务器之 ID",
+        panelChannelLabel: "申请面板频道 ID",
+        panelChannelHelp: "发布「开始申请」按钮的文字频道 ID",
+        reviewChannelLabel: "管理员审核频道 ID",
+        reviewChannelHelp: "管理员接收申请卡片与按钮的频道 ID",
+        categoryIdLabel: "申请频道分类目录 ID",
+        categoryIdHelp: "创建动态 1 对 1 申请频道的类别目录 ID",
+        verifiedRoleLabel: "通过验证身份组 ID",
+        verifiedRoleHelp: "审核通过后自动发放给玩家的身份组 ID",
+        portLabel: "本地 Web 面板 Port",
+        portHelp: "本控制台运行的端口（默认 3000）",
+        integrationsHeader: "MCSManager 面板与 Google Apps Script",
+        mcsmUrlLabel: "MCSManager 面板网址 (URL)",
+        mcsmUrlHelp: "MCSManager 主面板访问地址（含 Port，结尾不带斜杠）",
+        mcsmApiKeyLabel: "MCSM API Key (面板密钥)",
+        mcsmApiKeyHelp: "MCSManager 用户管理中生成的管理员 API 密钥",
+        gasWebhookLabel: "Google Apps Script Webhook 网址",
+        gasWebhookHelp: "Google 表格部署为网页应用后取得的 Webhook URL",
+        generalHeader: "基础架构与运作模式",
+        serverNameLabel: "服务器名称",
+        serverNameHelp: "显示于 Discord 卡片与通知标题",
+        serverModeLabel: "服务器架构模式",
+        serverModeHelp: "决定白名单指令与玩家 ID 处理逻辑",
+        embedColorLabel: "卡片主题色",
+        embedColorHelp: "Embed 卡片侧边颜色",
+        bedrockPrefixLabel: "基岩版前缀字符",
+        bedrockPrefixTip: "Floodgate 默认通常为小数点「.」",
+        bedrockCmdLabel: "基岩版指令模板",
+        javaCmdLabel: "Java 版指令模板",
+        cmdHelp: "{name} 将被自动替换为 ID",
+        instancesHeader: "MCSManager 服务器与节点实例列表",
+        addInstanceBtn: "添加服务器节点",
+        instanceDesc: "可绑定任意多个 MCSManager 服务器与远程节点，审核通过时将根据分流目标自动精准发送指令。",
+        questionsHeader: "自定义问卷题目",
+        addQuestionBtn: "添加题目",
+        questionDesc: "第 1 题固定由系统依据玩家版本动态引导；下方题目为第 2 题开始之问卷内容，可自由增减修改。",
+        toastSaved: "所有设置已成功保存并同步至 Discord！",
+        toastFailed: "保存失败，请检查后台连接。",
+        step1Title: "前置环境需求准备",
+        step1Desc: "部署本系统前请确认已具备以下前置项目：",
+        step1Point1: "Node.js：版本需求 v18.x 或 v20.x+。",
+        step1Point2: "MCSManager 面板：v9 / v10，并已在「用户管理」生成 API Key。",
+        step1Point3Title: "Minecraft 服务器核心支持",
+        step1Point3Sub1: "纯基岩版服 (BDS)：原装 Bedrock Dedicated Server、Nukkit 或 PocketMine。",
+        step1Point3Sub2: "纯 Java 服：Vanilla、Paper、Purpur、Fabric 或 Forge。",
+        step1Point3Sub3: "双端互通服：Paper / Fabric 搭配安装 Geyser 与 Floodgate。",
+        step2Title: "Discord 机器人创建与特权意图",
+        step2Desc: "前往 Discord Developer Portal 创建 Application 并进入 Bot 页面：",
+        step2Point1: "开启特权意图 (Privileged Gateway Intents)：请将 PRESENCE INTENT、SERVER MEMBERS INTENT、MESSAGE CONTENT INTENT 全部勾选开启。",
+        step2Point2: "邀请机器人：OAuth2 范围勾选 bot，权限给予 Administrator 或管理频道/身份组/昵称等权限。",
+        step2Point3: "身份组顺序：在 Discord 服务器身份组列表中，务必将机器人的身份组拖曳至「已验证」身份组之上。",
+        step3Title: "Google Apps Script (GAS) 表格部署",
+        step3Desc: "将玩家作答与审核状态即时异步同步至 Google 表格：",
+        step3Point1: "新建一份 Google 表格，点击顶部菜单 扩展程序 > Apps Script。",
+        step3Point2: "将项目中的 Code.gs 源代码粘贴至编辑器并保存。",
+        step3Point3: "点击右上角 部署 > 新建部署。",
+        step3Point4: "类型选择 网页应用 (Web App)，访问权限设为 所有人 (Anyone)。",
+        step3Point5: "复制生成的网址，填入「API 密钥与环境变量」中的 GAS_WEBHOOK_URL 字段。",
+        step4Title: "MCSManager 面板 API 连接",
+        step4Desc: "让机器人能远程发送指令写入服务器白名单：",
+        step4Point1: "获取 API Key：登录 MCSManager 面板，前往 用户管理 复制管理员 API Key。",
+        step4Point2: "获取实例 UUID 与 Daemon ID：进入服务器实例终端界面，在网址栏或设置中找到 uuid 与 daemonId。",
+        step4Point3: "填入设置后台：将面板网址与 API Key 写入「API 密钥与环境变量」，并在「服务器与节点设置」中直接输入实例 UUID 与节点 ID。",
+        step5Title: "跨平台与版本分流运作机制",
+        step5Desc: "系统如何处理 Java 与基岩版玩家：",
+        step5Point1: "双端互通模式：申请时机器人自动提供 Java 与基岩版选择按钮，玩家输入原始 ID 即可，系统后端自动处理前缀补缀与指令派发。",
+        step5Point2: "多节点精准路由：审核通过时，Java 玩家仅写入设置为 ALL 与 JAVA_ONLY 的实例；基岩版玩家仅写入 ALL 与 BEDROCK_ONLY 的实例。",
+        footerGithub: "GitHub 项目"
+      },
+      "en": {
+        saveBtn: "Save Config",
+        deployBtn: "Deploy Panel",
+        tabCredentials: "API Keys & Environment",
+        tabSettings: "Server & Node Instances",
+        tabGuide: "Setup Guide",
+        discordHeader: "Discord Bot Credentials & IDs",
+        discordTokenLabel: "Bot Token",
+        discordTokenHelp: "Bot token from Discord Developer Portal",
+        clientIdLabel: "Application Client ID",
+        clientIdHelp: "Discord Application Client ID",
+        guildIdLabel: "Guild ID",
+        guildIdHelp: "Target Discord Server Guild ID",
+        panelChannelLabel: "Application Panel Channel ID",
+        panelChannelHelp: "Channel where the Apply button is posted",
+        reviewChannelLabel: "Admin Review Channel ID",
+        reviewChannelHelp: "Channel where admins review cards",
+        categoryIdLabel: "Channel Category ID",
+        categoryIdHelp: "Category ID where 1-on-1 ticket channels are created",
+        verifiedRoleLabel: "Verified Role ID",
+        verifiedRoleHelp: "Role given upon approval",
+        portLabel: "Web Dashboard Port",
+        portHelp: "Local dashboard port (default 3000)",
+        integrationsHeader: "MCSManager & Google Apps Script",
+        mcsmUrlLabel: "MCSManager Panel URL",
+        mcsmUrlHelp: "MCSManager host with port (no trailing slash)",
+        mcsmApiKeyLabel: "MCSM Admin API Key",
+        mcsmApiKeyHelp: "Generated API Key from MCSM User Management",
+        gasWebhookLabel: "GAS Webhook URL",
+        gasWebhookHelp: "Webhook URL deployed from Google Apps Script",
+        generalHeader: "Architecture & Server Mode",
+        serverNameLabel: "Server Name",
+        serverNameHelp: "Displayed in Discord card headers and notifications",
+        serverModeLabel: "Server Architecture Mode",
+        serverModeHelp: "Determines whitelist command syntax and ID handling",
+        embedColorLabel: "Embed Color",
+        embedColorHelp: "Color strip on the side of Discord embeds",
+        bedrockPrefixLabel: "Bedrock Prefix",
+        bedrockPrefixTip: "Floodgate defaults to a dot '.'",
+        bedrockCmdLabel: "Bedrock Command Template",
+        javaCmdLabel: "Java Command Template",
+        cmdHelp: "{name} will be replaced by the player ID",
+        instancesHeader: "MCSManager Server & Node Instances",
+        addInstanceBtn: "Add Server Node",
+        instanceDesc: "Bind multiple MCSM instances across nodes; commands dispatch based on routing rules.",
+        questionsHeader: "Questionnaire Builder",
+        addQuestionBtn: "Add Question",
+        questionDesc: "Question 1 is dynamically prompted based on platform; questions below start from Question 2.",
+        toastSaved: "Settings saved and deployed successfully!",
+        toastFailed: "Failed to save configuration.",
+        step1Title: "Prerequisites & Requirements",
+        step1Desc: "Ensure you have the following prerequisites before deployment:",
+        step1Point1: "Node.js: Required version v18.x or v20.x+.",
+        step1Point2: "MCSManager: v9 / v10 with Admin API Key generated in User Management.",
+        step1Point3Title: "Minecraft Server Core Support",
+        step1Point3Sub1: "Bedrock Only (BDS): Official Bedrock Dedicated Server, Nukkit, or PocketMine.",
+        step1Point3Sub2: "Java Only: Vanilla, Paper, Purpur, Fabric, or Forge.",
+        step1Point3Sub3: "Crossplay: Paper / Fabric with Geyser and Floodgate installed.",
+        step2Title: "Discord Bot Setup & Privileged Intents",
+        step2Desc: "Go to Discord Developer Portal, create an App and navigate to Bot tab:",
+        step2Point1: "Enable Privileged Gateway Intents: Check PRESENCE INTENT, SERVER MEMBERS INTENT, and MESSAGE CONTENT INTENT.",
+        step2Point2: "Invite Bot: Under OAuth2 check 'bot' scope with Administrator or Manage Channels/Roles permissions.",
+        step2Point3: "Role Hierarchy: Drag the bot's role above the 'Verified' role in Discord Server Settings.",
+        step3Title: "Google Apps Script Deployment",
+        step3Desc: "Sync player submissions and review logs asynchronously to Google Sheets:",
+        step3Point1: "Create a Google Sheet, click Extensions > Apps Script.",
+        step3Point2: "Paste Code.gs into the editor and save.",
+        step3Point3: "Click Deploy > New deployment.",
+        step3Point4: "Select Web App and set access to 'Anyone'.",
+        step3Point5: "Copy the deployment URL into GAS_WEBHOOK_URL under API Keys.",
+        step4Title: "MCSManager API Integration",
+        step4Desc: "Allow the bot to remotely dispatch whitelist commands via REST API:",
+        step4Point1: "Obtain API Key: Log into MCSM, go to User Management and copy Admin API Key.",
+        step4Point2: "Locate UUID & Daemon ID: In the server instance console URL or settings, find uuid and daemonId.",
+        step4Point3: "Configure in Dashboard: Enter panel URL, API key, instance UUIDs and daemon IDs in the web panel.",
+        step5Title: "Crossplay & Routing Logic",
+        step5Desc: "How the system manages Java vs Bedrock players:",
+        step5Point1: "Crossplay Mode: The bot prompts players to choose Java or Bedrock with buttons; prefix formatting is handled automatically on backend.",
+        step5Point2: "Multi-Node Dispatch: Java players route only to ALL and JAVA_ONLY instances; Bedrock players route to ALL and BEDROCK_ONLY instances.",
+        footerGithub: "GitHub Project"
+      },
+      "ja": {
+        saveBtn: "設定を保存",
+        deployBtn: "パネルを発行",
+        tabCredentials: "APIキーと環境変数",
+        tabSettings: "サーバーとノード設定",
+        tabGuide: "スタートガイド",
+        discordHeader: "Discord Bot 認証情報・チャンネルID",
+        discordTokenLabel: "Bot Token (トークン)",
+        discordTokenHelp: "Discord Developer Portal で取得した Bot Token",
+        clientIdLabel: "Application Client ID",
+        clientIdHelp: "Discord Application ID",
+        guildIdLabel: "Guild ID (サーバーID)",
+        guildIdHelp: "対象の Discord サーバー ID",
+        panelChannelLabel: "申請パネルチャンネルID",
+        panelChannelHelp: "「申請開始」ボタンを配置するテキストチャンネル",
+        reviewChannelLabel: "管理者審査チャンネルID",
+        reviewChannelHelp: "審査カードとボタンを受け取るチャンネル",
+        categoryIdLabel: "申請チャンネルカテゴリID",
+        categoryIdHelp: "1対1の専用チケットチャンネルを作成するカテゴリ",
+        verifiedRoleLabel: "認証済みロールID",
+        verifiedRoleHelp: "承認完了時に自動付与されるロール ID",
+        portLabel: "Web管理パネル ポート",
+        portHelp: "管理パネルの起動ポート（デフォルト 3000）",
+        integrationsHeader: "MCSManager と Google Apps Script",
+        mcsmUrlLabel: "MCSManager URL",
+        mcsmUrlHelp: "MCSManager のアクセスURL（ポート含む・末尾スラッシュなし）",
+        mcsmApiKeyLabel: "MCSM API Key",
+        mcsmApiKeyHelp: "MCSManager ユーザー管理で発行された管理者 API Key",
+        gasWebhookLabel: "Google Apps Script Webhook URL",
+        gasWebhookHelp: "スプレッドシートからウェブアプリとしてデプロイされた URL",
+        generalHeader: "基本構成と動作モード",
+        serverNameLabel: "サーバー名",
+        serverNameHelp: "Discord の通知や埋め込みカードに表示されます",
+        serverModeLabel: "サーバー動作モード",
+        serverModeHelp: "ホワイトリストのコマンド構文と ID の処理を決定します",
+        embedColorLabel: "埋め込みテーマ色",
+        embedColorHelp: "Discord Embed のアクセントカラー",
+        bedrockPrefixLabel: "統合版プレフィックス",
+        bedrockPrefixTip: "Floodgate のデフォルトはドット「.」です",
+        bedrockCmdLabel: "統合版コマンドテンプレート",
+        javaCmdLabel: "Java版コマンドテンプレート",
+        cmdHelp: "{name} はプレイヤー ID に自動置換されます",
+        instancesHeader: "MCSManager サーバーとノード一覧",
+        addInstanceBtn: "ノードを追加",
+        instanceDesc: "複数のインスタンスやリモートノードを登録可能。審査完了時にルールに従って自動実行されます。",
+        questionsHeader: "アンケート設問カスタマイズ",
+        addQuestionBtn: "設問を追加",
+        questionDesc: "第1問はボットがプラットフォームに応じて自動案内します。以下の設問は第2問以降のアンケート内容です。",
+        toastSaved: "すべての設定が正常に保存され、反映されました！",
+        toastFailed: "設定の保存に失敗しました。",
+        step1Title: "前提環境の準備",
+        step1Desc: "本システムを展開する前に、以下の項目を確認してください：",
+        step1Point1: "Node.js：バージョン要件 v18.x または v20.x+。",
+        step1Point2: "MCSManager：v9 / v10、ユーザー管理で API Key を発行済みであること。",
+        step1Point3Title: "Minecraft サーバーコアのサポート",
+        step1Point3Sub1: "統合版専用 (BDS)：公式 Bedrock Dedicated Server、Nukkit、PocketMine。",
+        step1Point3Sub2: "Java版専用：Vanilla、Paper、Purpur、Fabric、Forge。",
+        step1Point3Sub3: "クロスプレイ：Paper / Fabric に Geyser と Floodgate を導入済み。",
+        step2Title: "Discord Bot の作成と特権インテント",
+        step2Desc: "Discord Developer Portal でアプリを作成し、Bot ページを開きます：",
+        step2Point1: "特権インテントの有効化：PRESENCE INTENT、SERVER MEMBERS INTENT、MESSAGE CONTENT INTENT をすべて有効化。",
+        step2Point2: "Bot 招待：OAuth2 で bot を選択し、管理者権限またはチャンネル/ロール管理権限を付与。",
+        step2Point3: "ロール階層：Discord のロール設定で、Bot のロールを「認証済み」ロールより上に配置。",
+        step3Title: "Google Apps Script (GAS) スプレッドシート連携",
+        step3Desc: "プレイヤーの回答と審査結果をスプレッドシートへ自動同期：",
+        step3Point1: "新規スプレッドシートを作成し、拡張機能 > Apps Script を開きます。",
+        step3Point2: "Code.gs を貼り付けて保存します。",
+        step3Point3: "右上の「デプロイ」>「新しいデプロイ」をクリック。",
+        step3Point4: "ウェブアプリを選択し、アクセスできるユーザーを「全員」に設定。",
+        step3Point5: "発行された URL を管理パネルの GAS_WEBHOOK_URL に入力。",
+        step4Title: "MCSManager API の連携",
+        step4Desc: "ボットがサーバーコンソールへコマンドを発行するための設定：",
+        step4Point1: "API Key の取得：MCSM にログインし、ユーザー管理から管理者 API Key を取得。",
+        step4Point2: "UUID と Daemon ID の確認：インスタンス設定または URL から uuid と daemonId を確認。",
+        step4Point3: "管理パネルに入力：URL、API Key、インスタンス UUID と Daemon ID を入力。",
+        step5Title: "クロスプレイとルーティングの仕組み",
+        step5Desc: "Java 版と統合版プレイヤーの処理方法：",
+        step5Point1: "クロスプレイモード：申請時にボタンでバージョンを選択。プレイヤーはプレフィックスを意識せず入力可能。",
+        step5Point2: "マルチノード送信：Java プレイヤーは ALL / JAVA_ONLY へ、統合版プレイヤーは ALL / BEDROCK_ONLY へ自動送信。",
+        footerGithub: "GitHub プロジェクト"
+      }
+    };
+
+    let currentLang = "zh-TW";
+    let currentConfig = {};
+    let currentEnv = {};
+
+    function toggleVisibility(inputId) {
+      const el = document.getElementById(inputId);
+      const icon = el.parentElement.querySelector('.btn-toggle-eye i');
+      if (el.type === 'password') {
+        el.type = 'text';
+        icon.className = 'fas fa-eye-slash';
+      } else {
+        el.type = 'password';
+        icon.className = 'fas fa-eye';
+      }
+    }
+
+    function handleModeChange(mode) {
+      const prefixGroup = document.getElementById('prefixFormGroup');
+      const bedrockCmdGroup = document.getElementById('bedrockCmdGroup');
+      const javaCmdGroup = document.getElementById('javaCmdGroup');
+
+      if (mode === 'BEDROCK_ONLY') {
+        prefixGroup.style.display = 'none';
+        bedrockCmdGroup.style.display = 'flex';
+        javaCmdGroup.style.display = 'none';
+      } else if (mode === 'JAVA_ONLY') {
+        prefixGroup.style.display = 'none';
+        bedrockCmdGroup.style.display = 'none';
+        javaCmdGroup.style.display = 'flex';
+      } else {
+        prefixGroup.style.display = 'flex';
+        bedrockCmdGroup.style.display = 'flex';
+        javaCmdGroup.style.display = 'flex';
+      }
+    }
+
+    function updateThemeIcon(theme) {
+      const icon = document.getElementById('themeIcon');
+      icon.className = theme === 'light' ? 'fas fa-sun' : 'fas fa-moon';
+    }
+
+    function toggleTheme() {
+      let currentTheme = document.documentElement.getAttribute('data-theme');
+      if (!currentTheme) currentTheme = 'dark';
+      const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      updateThemeIcon(newTheme);
+    }
+
+    function switchTab(tabId, btn) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+      btn.classList.add('active');
+    }
+
+    function updateHexText(hex) {
+      document.getElementById('colorHexText').innerText = hex.toUpperCase();
+    }
+
+    function showToast(text, isSuccess = true) {
+      const toast = document.getElementById('toastMsg');
+      const toastText = document.getElementById('toastText');
+      const toastIcon = document.getElementById('toastIcon');
+      toastText.innerText = text;
+      toastIcon.style.color = isSuccess ? 'var(--success)' : 'var(--danger)';
+      toastIcon.className = isSuccess ? 'fas fa-check-circle' : 'fas fa-exclamation-circle';
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3500);
+    }
+
+    function changeLanguage(lang) {
+      currentLang = lang;
+      localStorage.setItem('lang', lang);
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (i18n[lang] && i18n[lang][key]) {
+          el.innerText = i18n[lang][key];
+        }
+      });
+    }
+
+    async function loadConfig() {
+      const savedTheme = localStorage.getItem('theme') || 'dark';
+      updateThemeIcon(savedTheme);
+
+      const savedLang = localStorage.getItem('lang') || 'zh-TW';
+      document.getElementById('langSelect').value = savedLang;
+
+      try {
+        const res = await fetch('/api/settings');
+        const data = await res.json();
+        currentConfig = data.config || {};
+        currentEnv = data.env || {};
+
+        const statusDot = document.getElementById('statusDot');
+        const statusText = document.getElementById('botStatusText');
+        if (data.botOnline) {
+          statusDot.className = 'status-dot online';
+          statusText.innerText = `在線 (${data.botTag})`;
+        } else {
+          statusDot.className = 'status-dot';
+          statusText.innerText = '未連線 (請檢查 Token)';
+        }
+
+        const envKeys = [
+          'DISCORD_TOKEN', 'CLIENT_ID', 'GUILD_ID', 'APPLY_PANEL_CHANNEL_ID',
+          'ADMIN_REVIEW_CHANNEL_ID', 'CATEGORY_ID', 'VERIFIED_ROLE_ID', 'PORT',
+          'MCSM_URL', 'MCSM_API_KEY', 'GAS_WEBHOOK_URL'
+        ];
+        envKeys.forEach(k => {
+          const el = document.getElementById(`env_${k}`);
+          if (el) el.value = currentEnv[k] || '';
+        });
+
+        document.getElementById('serverName').value = currentConfig.serverName || '';
+        document.getElementById('serverMode').value = currentConfig.serverMode || 'CROSSPLAY';
+
+        const colorVal = currentConfig.embedColor || '#5865F2';
+        document.getElementById('embedColor').value = colorVal;
+        updateHexText(colorVal);
+
+        document.getElementById('bedrockPrefix').value = currentConfig.bedrockPrefix || '.';
+        document.getElementById('bedrockCommandTemplate').value = currentConfig.bedrockCommandTemplate || 'whitelist add {name}';
+        document.getElementById('javaCommandTemplate').value = currentConfig.javaCommandTemplate || 'whitelist add {name}';
+
+        renderInstances(currentConfig.instances || []);
+        renderQuestions(currentConfig.questions || []);
+
+        handleModeChange(currentConfig.serverMode || 'CROSSPLAY');
+        changeLanguage(savedLang);
+      } catch (err) {
+        console.error('[Config Load Error]', err);
+      }
+    }
+
+    function renderInstances(instances) {
+      const container = document.getElementById('instanceContainer');
+      container.innerHTML = '';
+      instances.forEach((inst, idx) => {
+        const div = document.createElement('div');
+        div.className = 'dynamic-item instance-grid';
+        div.innerHTML = `
+          <input type="text" class="form-input inst-name" value="${inst.name || ''}" placeholder="Server Name">
+          <input type="text" class="form-input inst-uuid" value="${inst.instanceUuid || ''}" placeholder="Instance UUID">
+          <input type="text" class="form-input inst-daemon" value="${inst.daemonId || ''}" placeholder="Daemon ID">
+          <select class="form-select-custom inst-target">
+            <option value="ALL" ${inst.target === 'ALL' ? 'selected' : ''}>ALL</option>
+            <option value="JAVA_ONLY" ${inst.target === 'JAVA_ONLY' ? 'selected' : ''}>Java Only</option>
+            <option value="BEDROCK_ONLY" ${inst.target === 'BEDROCK_ONLY' ? 'selected' : ''}>Bedrock Only</option>
+          </select>
+          <button class="btn-icon-danger" onclick="removeInstanceRow(${idx})" title="Delete">
+            <i class="fas fa-trash-alt"></i>
+          </button>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function addInstanceRow() {
+      const instances = getInstancesFromDOM();
+      instances.push({ name: 'New Server Node', instanceUuid: '', daemonId: '', target: 'ALL' });
+      renderInstances(instances);
+    }
+
+    function removeInstanceRow(index) {
+      const instances = getInstancesFromDOM();
+      instances.splice(index, 1);
+      renderInstances(instances);
+    }
+
+    function getInstancesFromDOM() {
+      const rows = document.querySelectorAll('#instanceContainer .dynamic-item');
+      const list = [];
+      rows.forEach(r => {
+        list.push({
+          name: r.querySelector('.inst-name').value.trim(),
+          instanceUuid: r.querySelector('.inst-uuid').value.trim(),
+          daemonId: r.querySelector('.inst-daemon').value.trim(),
+          target: r.querySelector('.inst-target').value
+        });
+      });
+      return list;
+    }
+
+    function renderQuestions(questions) {
+      const container = document.getElementById('questionContainer');
+      container.innerHTML = '';
+      const followups = questions.filter(q => q.id !== 'mcId');
+      followups.forEach((q, idx) => {
+        const div = document.createElement('div');
+        div.className = 'dynamic-item question-grid';
+        div.innerHTML = `
+          <input type="text" class="form-input q-id" value="${q.id}" placeholder="Question ID">
+          <input type="text" class="form-input q-text" value="${q.text}" placeholder="Question Text">
+          <button class="btn-icon-danger" onclick="removeQuestionRow(${idx})" title="Delete">
+            <i class="fas fa-trash-alt"></i>
+          </button>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function addQuestionRow() {
+      const questions = getQuestionsFromDOM();
+      questions.push({ id: `q_${Date.now()}`, text: 'New Question Prompt:' });
+      renderQuestions(questions);
+    }
+
+    function removeQuestionRow(index) {
+      const questions = getQuestionsFromDOM();
+      questions.splice(index, 1);
+      renderQuestions(questions);
+    }
+
+    function getQuestionsFromDOM() {
+      const rows = document.querySelectorAll('#questionContainer .dynamic-item');
+      const list = [];
+      rows.forEach(r => {
+        list.push({
+          id: r.querySelector('.q-id').value.trim(),
+          text: r.querySelector('.q-text').value.trim()
+        });
+      });
+      return list;
+    }
+
+    async function saveConfig(autoDeploy = false) {
+      const mode = document.getElementById('serverMode').value;
+      const followups = getQuestionsFromDOM();
+      const allQuestions = [{ id: 'mcId', text: 'Minecraft ID' }, ...followups];
+
+      const configPayload = {
+        serverName: document.getElementById('serverName').value.trim(),
+        serverMode: mode,
+        enableBedrockSupport: mode !== 'JAVA_ONLY',
+        bedrockPrefix: document.getElementById('bedrockPrefix').value.trim(),
+        requireBedrockPrefix: mode === 'CROSSPLAY',
+        bedrockCommandTemplate: document.getElementById('bedrockCommandTemplate').value.trim(),
+        javaCommandTemplate: document.getElementById('javaCommandTemplate').value.trim(),
+        embedColor: document.getElementById('embedColor').value,
+        instances: getInstancesFromDOM(),
+        questions: allQuestions
+      };
+
+      const envPayload = { ...currentEnv };
+      const envKeys = [
+        'DISCORD_TOKEN', 'CLIENT_ID', 'GUILD_ID', 'APPLY_PANEL_CHANNEL_ID',
+        'ADMIN_REVIEW_CHANNEL_ID', 'CATEGORY_ID', 'VERIFIED_ROLE_ID', 'PORT',
+        'MCSM_URL', 'MCSM_API_KEY', 'GAS_WEBHOOK_URL'
+      ];
+      envKeys.forEach(k => {
+        const el = document.getElementById(`env_${k}`);
+        if (el) envPayload[k] = el.value.trim();
+      });
+
+      try {
+        const res = await fetch('/api/settings', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ config: configPayload, env: envPayload, autoDeployPanel: autoDeploy })
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+          let msg = i18n[currentLang].toastSaved;
+          if (data.panelResult && data.panelResult.channelName) {
+            msg += ` (#${data.panelResult.channelName})`;
+          }
+          showToast(msg, true);
+          loadConfig();
+        } else {
+          showToast(i18n[currentLang].toastFailed, false);
+        }
+      } catch (err) {
+        showToast('Exception: ' + err.message, false);
+      }
+    }
+
+    async function deployPanelNow() {
+      try {
+        const res = await fetch('/api/send-panel', { method: 'POST' });
+        const data = await res.json();
+        if (res.ok) {
+          showToast(`申請面板已成功發布至頻道 #${data.result.channelName}！`, true);
+        } else {
+          showToast(`發布失敗: ${data.message}`, false);
+        }
+      } catch (err) {
+        showToast('Exception: ' + err.message, false);
+      }
+    }
+
+    window.onload = loadConfig;
+  </script>
+</body>
+</html>
