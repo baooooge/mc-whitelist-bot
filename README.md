@@ -34,3 +34,13 @@
 git clone [https://github.com/baooooge/mc-whitelist-bot.git](https://github.com/baooooge/mc-whitelist-bot.git)
 cd mc-whitelist-bot
 npm install
+
+### 2.編輯 .env 填入實際參數
+
+### 3.Google Apps Script 部署
+開啟目標 Google 試算表，點擊 擴充功能 > Apps Script。
+將專案中的 Code.gs 貼入編輯器並儲存。
+點擊右上角 部署 > 新增部署作業。
+類型選擇 網頁應用程式：
+誰可以存取：選擇 所有人 (Anyone)。
+將取得的 Webhook 網址複製並填入 .env 的 GAS_WEBHOOK_URL。
