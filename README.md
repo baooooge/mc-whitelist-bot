@@ -28,18 +28,16 @@
 
 ## 開始
 
-### 1. 取得專案原始碼
+1. 取得專案原始碼
 
-```bash
+
 git clone [https://github.com/baooooge/mc-whitelist-bot.git](https://github.com/baooooge/mc-whitelist-bot.git)
 cd mc-whitelist-bot
 npm install
 
-### 2.編輯 .env 填入實際參數
-```bash
+2.編輯 .env 填入實際參數
 
-### 3.Google Apps Script 部署
-```bash
+3.Google Apps Script 部署
 開啟目標 Google 試算表，點擊 擴充功能 > Apps Script。
 將專案中的 Code.gs 貼入編輯器並儲存。
 點擊右上角 部署 > 新增部署作業。
